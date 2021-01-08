@@ -1,46 +1,46 @@
 import React, { Component } from 'react';
 import CanvasJSReact from './assets/canvasjs.react';
 import './App.css'
+import { render } from '@testing-library/react';
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
 class ColumnChart extends Component {
-	state = {}
+	constructor(prop) {
+		super(prop)
+		this.state = {
+			Cases: [],
+			Death: [],
+			Recovered: [],
+			Day: [],
+			firstDay: 0,
+			lastDat: 0,
+			valueFirstCases: 0,
+			valueLastCases: 0,
+			totalCases: 0
+		}
+	}
+
 
 
 	async componentDidMount() {
 		const url = 'https://disease.sh/v3/covid-19/historical/all?lastdays=90';
 		const res = await fetch(url);
 		const data = await res.json();
-		const arrMonth = [
-			"เดือน",
-			"มกราคม",
-			"กุมภาพันธ์",
-			"มีนาคม",
-			"เมษายน",
-			"พฤษภาคม",
-			"มิถุนายน",
-			"กรกฎาคม",
-			"สิงหาคม",
-			"กันยายน",
-			"ตุลาคม",
-			"พฤศจิกายน",
-			"ธันวาคม"
-		]
 		const arrDate = Object.keys(data.cases);
 		const arrCases = Object.values(data.cases);
 		const arrDeath = Object.values(data.deaths);
 		const arrRecovered = Object.values(data.recovered);
-		// console.log(arrDate)
-		var arrDay = []
-		var firstDay = 0
-		var lastDay = 0
-		var valueFirstCases, valueLastCases, totalCases = 0
 
-
+		var Day = this.state.Day
+		var firstDay = this.state.firstDay
+		var lastDay = this.state.lastDay
+		var Cases = this.state.Cases
+		var Death = this.state.Death
+		var Recovered = this.state.Recovered
 		arrDate.forEach(getData);
 		function getData(item, index) {
 			if (item.split("/")[0] === "12") {
-				arrDay.push(item)
+				Day.push(item)
 				if (item.split("/")[1] === "1") {
 					firstDay = index
 				}
@@ -51,62 +51,62 @@ class ColumnChart extends Component {
 		}
 		arrCases.forEach(getDataValues);
 		function getDataValues(item, index) {
-			if (index === firstDay) {
-				valueFirstCases = item
-			}
-			if (index === lastDay) {
-				valueLastCases = item
+			if (index >= firstDay && index <= lastDay) {
+				Cases.push(item)
 			}
 		}
-		var valueFirstDeath, valueLastDeath, totalDeath = 0
 		arrDeath.forEach(getDeathValues);
 		function getDeathValues(item, index) {
-			if (index === firstDay) {
-				valueFirstDeath = item
-			}
-			if (index === lastDay) {
-				valueLastDeath = item
+			if (index >= firstDay && index <= lastDay) {
+				Death.push(item)
 			}
 		}
-
-		var valueFirstRecovered, valueLastRecovered, totalRecovered = 0
 		arrRecovered.forEach(getRecoverValues);
 		function getRecoverValues(item, index) {
-			if (index === firstDay) {
-				valueFirstRecovered = item
-			}
-			if (index === lastDay) {
-				valueLastRecovered = item
+			if (index >= firstDay && index <= lastDay) {
+				Recovered.push(item)
 			}
 		}
-		
-		totalCases = valueLastCases - valueFirstCases
-		totalDeath = valueLastDeath - valueFirstDeath
-		totalRecovered = valueLastRecovered - valueFirstRecovered
-		this.setState({
-			// date: arrMonth[((arrDate[arrDate.length - 1].split("/")[0]) * 1)],
-			dateStart: arrDay[0],
-			dateEnd: arrDay[arrDay.length - 1],
-			cases: totalCases,
-			deaths: totalDeath,
-			recovered: totalRecovered
 
-		})
+		this.state.Day = Day
+		this.state.firstDay = firstDay
+		this.state.lastDat = lastDay
+		this.state.Cases = Cases
+		this.state.Death = Death
+		this.state.Recovered = Recovered
+		this.getData()
 	}
 
+	getData() {
+		var i = 0;
+		setInterval(() => {
+			this.setState({
+				dateNow: this.state.Day[i],
+				cases: this.state.Cases[i],
+				deaths: this.state.Death[i],
+				recovered: this.state.Recovered[i]
+
+			})
+			if (i === 30) {
+				i = 0
+			}else{
+				i++
+			}
+	
+		}, 300);
+		
+	}
 	render() {
 
 		const options = {
 			title: {
-				text: this.state.dateStart
+				text: this.state.dateNow
 			},
 			animationEnabled: true,
 			data: [
 				{
-					// Change type to "doughnut", "line", "splineArea", etc.
 					type: "column",
 					dataPoints: [
-
 						{ label: "Cases", y: this.state.cases },
 						{ label: "Death", y: this.state.deaths },
 						{ label: "Recovered", y: this.state.recovered }
