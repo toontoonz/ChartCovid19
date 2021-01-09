@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import CanvasJSReact from './assets/canvasjs.react';
 import './App.css'
-import { render } from '@testing-library/react';
+var CanvasJS = CanvasJSReact.CanvasJS;
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
-class ColumnChart extends Component {
+class App extends Component {
 	constructor(prop) {
 		super(prop)
 		this.state = {
@@ -89,12 +89,12 @@ class ColumnChart extends Component {
 			})
 			if (i === 30) {
 				i = 0
-			}else{
+			} else {
 				i++
 			}
-	
+
 		}, 300);
-		
+
 	}
 	render() {
 
@@ -105,11 +105,12 @@ class ColumnChart extends Component {
 			animationEnabled: true,
 			data: [
 				{
-					type: "column",
+					type: "bar",
 					dataPoints: [
-						{ label: "Cases", y: this.state.cases },
-						{ label: "Death", y: this.state.deaths },
-						{ label: "Recovered", y: this.state.recovered }
+						
+						{ y: this.state.deaths, label: "Death" },
+						{ y: this.state.recovered, label: "Recovered" },
+						{ y: this.state.cases, label: "Cases" },
 					]
 				}
 			]
@@ -123,6 +124,14 @@ class ColumnChart extends Component {
 
 		);
 	}
+	addSymbols(e){
+		var suffixes = ["", "K", "M", "B"];
+		var order = Math.max(Math.floor(Math.log(e.value) / Math.log(1000)), 0);
+		if(order > suffixes.length - 1)
+			order = suffixes.length - 1;
+		var suffix = suffixes[order];
+		return CanvasJS.formatNumber(e.value / Math.pow(1000, order)) + suffix;
+	}
 }
 
-export default ColumnChart;
+export default App;
