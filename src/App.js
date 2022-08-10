@@ -23,7 +23,7 @@ class App extends Component {
 
 
 	async componentDidMount() {
-		const url = 'https://disease.sh/v3/covid-19/historical/all?lastdays=all';
+		const url = 'https://disease.sh/v3/covid-19/historical/all?lastdays=90';
 		const res = await fetch(url);
 		const data = await res.json();
 		const arrDate = Object.keys(data.cases);
